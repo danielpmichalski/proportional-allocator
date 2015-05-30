@@ -42,7 +42,7 @@ GIVEN Basket[{element1: 60%}, {element2: 20%}, {element3: 20%}]
 
 WHEN  Basket.updateAllocation(element2, 45%)
 
-THEN  Basket[{element1: 57.5%}, {element2: 45%}, {element3: 7.5%}]
+THEN  Basket[{element1: 47.5%}, {element2: 45%}, {element3: 7.5%}]
 
 
 Mode: Proportional changes to other elements' allocations
