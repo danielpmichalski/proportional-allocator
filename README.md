@@ -2,15 +2,12 @@
 
 ## Overview
 
-PAB or Proportional Allocation Basket is a Javascript library that allows you to add and remove elements from a basket and adjust allocations of those elements. 
-
-The library might be used for example to adjust the allocation of financial instruments in a portfolio/basket, by modifying allocation of one or multiple instruments.
+PAB or Proportional Allocation Basket is a JavaScript library that allows adding and removing volumetric items from a virtual basket and adjust their allocations.
 
 ## Use cases
 
 #### Case 1
 Adding new elements to basket recalculates allocations of previously existing elements proportionally (or equally), e.g.:
-
 
 GIVEN Basket[{element1: 50%}, {element2: 50%}]
 
