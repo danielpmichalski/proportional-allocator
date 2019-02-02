@@ -1,7 +1,5 @@
 # proportional-allocation-basket
 
-[![Build Status](https://img.shields.io/travis/danielpmichalski/proportional-allocation-basket/master.svg?style=flat-square)](https://travis-ci.org/danielpmichalski/proportional-allocation-basket)
-
 ## Overview
 
 PAB or Proportional Allocation Basket is a Javascript library that allows you to add and remove elements from a basket and adjust allocations of those elements. 
