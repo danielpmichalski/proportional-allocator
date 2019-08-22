@@ -1,4 +1,4 @@
-const addItem = function (currentBasket, allocation) {
+const addItemToBasket = function (currentBasket, allocation) {
   let newBasket = [];
   let previousNumberOfItems = currentBasket.length;
   let currentNumberOfItems = previousNumberOfItems + 1;
@@ -40,13 +40,14 @@ const addItem = function (currentBasket, allocation) {
     }
   }
 
-  newBasket.push(newItemAllocation);
+  if (newItemAllocation !== 0.0)
+    newBasket.push(newItemAllocation);
 
   return newBasket;
 };
 
 // without index, pops the last item
-const removeItem = function (
+const removeItemFromBasket = function (
     currentBasket,
     itemIndex = (currentBasket.length === 0 ? 0 : currentBasket.length - 1) ) {
   let newBasket = Array.from(currentBasket);
@@ -68,7 +69,7 @@ const removeItem = function (
   return newBasket;
 }
 
-const repositionItem = function (currentBasket, itemOldIndex, itemNewIndex) {
+const repositionItemInBasket = function (currentBasket, itemOldIndex, itemNewIndex) {
   let copyOfCurrentBasket = Array.from(currentBasket);
   let itemsRemovedArray = copyOfCurrentBasket.splice(itemOldIndex, 1);
 
@@ -82,8 +83,71 @@ const repositionItem = function (currentBasket, itemOldIndex, itemNewIndex) {
   }
 }
 
-module.exports = {
-  addItem: addItem,
-  removeItem: removeItem,
-  repositionItem: repositionItem
+class ProportionalAllocationBasket {
+
+  constructor(newBasket) {
+    if (newBasket === undefined) {
+      this.data = [];
+    } else {
+      this.data = newBasket;
+    }
+  }
+
+  push() {
+    return new ProportionalAllocationBasket(
+      addItemToBasket(this.data)
+    );
+  }
+
+  push(allocation) {
+    return new ProportionalAllocationBasket(
+      addItemToBasket(this.data, allocation)
+    );
+  }
+
+  remove(index) {
+    if (index === undefined)
+      throw new Error('missing argument: index');
+
+    return new ProportionalAllocationBasket(
+      removeItemFromBasket(this.data, index)
+    );
+  }
+
+  pop() {
+    return new ProportionalAllocationBasket(removeItemFromBasket(this.data));
+  }
+
+  repositionItem(index, newIndex) {
+    if (index === undefined || newIndex === undefined)
+      throw Error('missing argument');
+
+    return new ProportionalAllocationBasket(
+      repositionItemInBasket(this.data, index, newIndex)
+    );
+  }
+
+  get basket() {
+    return this.data.slice();
+  }
+
+  set basket(newBasket) {
+    this.data = newBasket;
+  }
 }
+
+module.exports = new ProportionalAllocationBasket();
+
+// Object.create(new ProportionalAllocationBasket()).prototype.addItem =
+//   function (allocation) {
+//     let newBasket = addItemToBasket(this.basket, allocation);
+//     let newPab = new ProportionalAllocationBasket();
+//     newPab.basket = newBasket;
+//     return newPab;
+// };
+
+// ProportionalAllocationBasket.getBasket = function () {
+//   return Array.from(this.basket);
+// }
+
+// export { ProportionalAllocationBasket };

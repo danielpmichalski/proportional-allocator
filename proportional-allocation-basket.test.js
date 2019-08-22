@@ -22,10 +22,10 @@ const arrayWithFloatsEquals = function (current, other, precision = 4) {
 }
 
 const assertArraysWithFloatsEquals = function (actual, expected, precision = 4) {
-  if (!Array.isArray(actual) || !Array.isArray(expected)) {
-    return false;
-  } else {
+  if (Array.isArray(actual) && Array.isArray(expected)) {
     return arrayWithFloatsEquals(actual, expected, precision);
+  } else {
+    return false;
   }
 }
 
@@ -48,46 +48,84 @@ expect.extend({
 });
 
 // general item addition cases
-test('addItem([1.0]) == [0.5, 0.5]', () => {
-  expect(basket.addItem([1.0])).toBeArrayWithFloats([0.5, 0.5]);
+test('[].push() === [1.0]', () => {
+  let actual = basket.push(); // === [1.0]
+  let expected = [1.0];
+
+  expect(actual.basket).toBeArrayWithFloats([1.0]);
 });
 
-test('addItem([0.5, 0.5]) == [0.3333, 0.3333, 0.3333]', () => {
-  expect(basket.addItem([0.5, 0.5])).toBeArrayWithFloats([0.3333, 0.3333, 0.3333]);
+test('[1.0].push() === [0.5, 0.5]', () => {
+  let actual = basket.push(); // === [1.0]
+  let expected = [0.5, 0.5];
+
+  expect(actual.push().basket).toBeArrayWithFloats(expected);
+});
+
+test('[0.5, 0.5].push() === [0.3333, 0.3333, 0.3333]', () => {
+  let actual = basket.push().push(); // === [0.5, 0.5]
+  let expected = [0.3333, 0.3333, 0.3333];
+
+  expect(actual.push().basket).toBeArrayWithFloats(expected);
+});
+
+test('[0.5, 0.5].push().pop() === [0.5, 0.5]', () => {
+  let actual = basket.push().push(); // === [0.5, 0.5]
+  let expected = [0.5, 0.5];
+
+  expect(actual.push().pop().basket).toBeArrayWithFloats(expected);
 });
 
 // item addition edge cases
-test('addItem([]) == [1.0]', () => {
-  expect(basket.addItem([])).toBeArrayWithFloats([1.0]);
+test('[].push(1.0) === [1.0]', () => {
+  let actual = basket; // === []
+  let expected = [1.0];
+
+  expect(actual.push(1.0).basket).toBeArrayWithFloats(expected);
 });
 
-test('addItem([], 1.0) == [1.0]', () => {
-  expect(basket.addItem([], 1.0)).toBeArrayWithFloats([1.0]);
+test('[1.0].push(0) === [1.0]', () => {
+  let actual = basket.push(); // === [1.0]
+  let expected = [1.0];
+
+  expect(actual.push(0).basket).toBeArrayWithFloats(expected);
 });
 
-test('addItem([], 0) == [1.0]', () => {
-  expect(basket.addItem([], 0)).toBeArrayWithFloats([1.0]);
+test('[].push(0.5) === [1.0]', () => {
+  expect(basket.push(0.5).basket).toBeArrayWithFloats([1.0]);
 });
 
-test('addItem([], 0.5) == [1.0]', () => {
-  expect(basket.addItem([], 0.5)).toBeArrayWithFloats([1.0]);
+test('[].push(-0.1) === [1.0]', () => {
+  expect(basket.push(-0.1).basket).toBeArrayWithFloats([1.0]);
 });
 
-test('addItem([], -0.1) == [1.0]', () => {
-  expect(basket.addItem([], -0.1)).toBeArrayWithFloats([1.0]);
+test('[].push(1.000001) === [1.0]', () => {
+  expect(basket.push(1.000001).basket).toBeArrayWithFloats([1.0]);
 });
 
-test('addItem([], 1.000001) == [1.0]', () => {
-  expect(basket.addItem([], 1.000001)).toBeArrayWithFloats([1.0]);
-});
-
-test('addItem([], 2.0) == [1.0]', () => {
-  expect(basket.addItem([], 2.0)).toBeArrayWithFloats([1.0]);
+test('[].push(2.0) === [1.0]', () => {
+  expect(basket.push(2.0).basket).toBeArrayWithFloats([1.0]);
 });
 
 // general item removal cases
+test('[0.5, 0.5].pop() === [1.0]', () => {
+  let actual = basket.push().push(); // === [0.5, 0.5]
+  let expected = [1.0];
+
+  expect(actual.pop().basket).toBeArrayWithFloats(expected);
+});
 
 // item removal edge cases
+test('[].pop() === []', () => {
+  expect(basket.pop().basket).toEqual([]);
+});
+
+test('[1.0].pop() === []', () => {
+  let actual = basket.push(); // === [1.0]
+  let expected = [];
+
+  expect(actual.pop().basket).toEqual(expected);
+});
 
 // general item displacement cases
 
