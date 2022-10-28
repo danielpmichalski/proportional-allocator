@@ -34,6 +34,15 @@ describe('ProportionalAllocator', () => {
             ).toThrowError('sum of input allocations cannot exceed 1');
         });
 
+        it('throws error when sum of allocations is < 1', () => {
+            expect(
+                () =>
+                    new ProportionalAllocator([
+                        0.999999999999998, 0.000000000000001,
+                    ])
+            ).toThrowError('sum of input allocations must equal 1');
+        });
+
         it('does not throw error when sum of allocations is exactly 1', () => {
             expect(
                 () =>
@@ -60,27 +69,17 @@ describe('ProportionalAllocator', () => {
         });
 
         test.each([
+            ['empty + undefined => [1.0]', undefined, undefined, [1.0]],
+            ['empty + 1.0 => [1.0]', undefined, 1, [1]],
+            ['[1] + undefined => [0.5, 0.5]', [1], undefined, [0.5, 0.5]],
             [
-                "adds 1st allocation with 100% when it's added without specified value",
-                [],
-                undefined,
-                [1.0],
-            ],
-            ['adds 1st allocation with specified value', [], 0.5, [0.5]],
-            [
-                'adds 2nd allocation and sets both allocations to 50%',
-                [1],
-                undefined,
-                [0.5, 0.5],
-            ],
-            [
-                'adds 3rd allocation and sets all three allocations to ~33.33%',
+                '[0.5, 0.5] + undefined => [0.3333, 0.3333, 0.3334]',
                 [0.5, 0.5],
                 undefined,
                 [0.3333, 0.3333, 0.3334],
             ],
             [
-                'adds 3rd allocation, sets it to ~33.33% and lowers other proportionally',
+                '[0.3333, 0.6667] + undefined => [0.2222, 0.4445, 0.3333]',
                 [0.3333, 0.6667],
                 undefined,
                 [0.2222, 0.4445, 0.3333],
@@ -89,7 +88,7 @@ describe('ProportionalAllocator', () => {
             '%s',
             (
                 _: string,
-                input: number[],
+                input: number[] | undefined,
                 allocation: number | undefined,
                 expected: number[]
             ) => {
@@ -103,11 +102,6 @@ describe('ProportionalAllocator', () => {
     describe('getRawAllocations', () => {
         it('returns empty array when allocator is empty', () => {
             const allocator = new ProportionalAllocator();
-            expect(allocator.getRawAllocations()).toStrictEqual([]);
-        });
-
-        it('returns empty array when allocator is created with an empty allocations', () => {
-            const allocator = new ProportionalAllocator([]);
             expect(allocator.getRawAllocations()).toStrictEqual([]);
         });
 

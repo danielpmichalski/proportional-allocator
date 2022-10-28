@@ -28,6 +28,9 @@ export class ProportionalAllocator {
             if (total > 1) {
                 throw new Error('sum of input allocations cannot exceed 1');
             }
+            if (total < 1) {
+                throw new Error('sum of input allocations must equal 1');
+            }
             this.#allocations.push(...allocations);
         }
     }
