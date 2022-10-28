@@ -10,6 +10,7 @@
 // - remove item at index
 // - increase/decrease item's allocation by X% with proportional mode
 // - increase/decrease item's allocation by X% with equal mode
+// - clean up - remove all items that have allocation 0.0
 
 // questions
 // - can an item have 0% allocation? e.g. add item1 -> 100%, lock it, add item2 -> 0% ? yes, this is a valid use case
@@ -20,11 +21,52 @@
 export class ProportionalAllocator {
     #allocations: number[] = [];
 
-    constructor(allocator?: ProportionalAllocator | undefined) {
-        allocator && this.#allocations.push(...allocator.getRawAllocations());
+    constructor(allocations?: number[]) {
+        if (allocations) {
+            allocations.forEach((item) => this.#validate(item));
+            const total = allocations.reduce(
+                (previousValue, currentValue) => previousValue + currentValue,
+                0
+            );
+            if (total > 1) {
+                throw new Error('sum of input allocations cannot exceed 1');
+            }
+            this.#allocations.push(...allocations);
+        }
     }
 
     getRawAllocations() {
         return [...this.#allocations];
+    }
+
+    push(allocation?: number): ProportionalAllocator {
+        allocation && this.#validate(allocation);
+
+        const newAllocations = [];
+        if (this.#allocations.length === 0) {
+            if (allocation) {
+                newAllocations.push(allocation);
+            } else {
+                newAllocations.push(1.0);
+            }
+        } else {
+            if (allocation) {
+                //
+            } else {
+                const newTotal = this.#allocations.length + 1;
+                newAllocations.push(
+                    ...this.#allocations.map((i) => i / newTotal)
+                );
+                newAllocations.push(1.0 / newTotal);
+            }
+        }
+
+        return new ProportionalAllocator(newAllocations);
+    }
+
+    #validate(allocation: number) {
+        if (allocation < 0 || allocation > 1) {
+            throw new Error('allocation must be between 0 and 1');
+        }
     }
 }
