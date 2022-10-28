@@ -1,7 +1,7 @@
 {
   "name": "proportional-allocator",
-  "version": "1.0.0",
-  "description": "## Overview",
+  "version": "0.1.0",
+  "description": "Proportional Allocator is an npm package written in TypeScript that makes it easy to work out changes to proportions of a collection of abstract items.",
   "main": ".dist/proportional-allocator.js",
   "scripts": {
     "build": "tsc",
@@ -10,12 +10,21 @@
     "lint-fix": "eslint src/** --fix",
     "test": "jest src"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/danielpmichalski/proportional-allocation-basket.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "proportion",
+    "allocation",
+    "calculation"
+  ],
+  "author": "Daniel P. Klimuntowski",
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/danielpmichalski/proportional-allocation-basket/issues"
