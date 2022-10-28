@@ -71,10 +71,26 @@ describe('ProportionalAllocator', () => {
             expect(allocator.getRawAllocations()).toStrictEqual([0.5]);
         });
 
-        it.skip('adds 2nd allocation and sets both allocations to 50%', () => {
+        it('adds 2nd allocation and sets both allocations to 50%', () => {
             let allocator = new ProportionalAllocator([1]);
-            allocator.push();
+            allocator = allocator.push();
             expect(allocator.getRawAllocations()).toStrictEqual([0.5, 0.5]);
+        });
+
+        it('adds 3rd allocation and sets all three allocations to ~33.33%', () => {
+            let allocator = new ProportionalAllocator([0.5, 0.5]);
+            allocator = allocator.push();
+            expect(allocator.getRawAllocations()).toStrictEqual([
+                0.3333, 0.3333, 0.3334,
+            ]);
+        });
+
+        it('adds 3rd allocation, sets it to ~33.33% and lowers other proportionally', () => {
+            let allocator = new ProportionalAllocator([0.3333, 0.6667]);
+            allocator = allocator.push();
+            expect(allocator.getRawAllocations()).toStrictEqual([
+                0.2222, 0.4445, 0.3333,
+            ]);
         });
     });
 

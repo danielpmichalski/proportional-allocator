@@ -1,4 +1,4 @@
-// stateless? yes
+// stateless? no! no need; it's easier to use the lib that way
 
 // how should one use the lib? what is the API?
 // if it's stateless, then it needs to return a new object everytime
@@ -24,10 +24,7 @@ export class ProportionalAllocator {
     constructor(allocations?: number[]) {
         if (allocations) {
             allocations.forEach((item) => this.#validate(item));
-            const total = allocations.reduce(
-                (previousValue, currentValue) => previousValue + currentValue,
-                0
-            );
+            const total = this.#getTotal(allocations);
             if (total > 1) {
                 throw new Error('sum of input allocations cannot exceed 1');
             }
@@ -36,32 +33,53 @@ export class ProportionalAllocator {
     }
 
     getRawAllocations() {
-        return [...this.#allocations];
+        return [...this.#allocations].map(this.#toPrecision);
     }
 
     push(allocation?: number): ProportionalAllocator {
         allocation && this.#validate(allocation);
 
-        const newAllocations = [];
-        if (this.#allocations.length === 0) {
-            if (allocation) {
+        let newAllocations = [];
+        if (allocation) {
+            if (this.#allocations.length === 0) {
                 newAllocations.push(allocation);
             } else {
-                newAllocations.push(1.0);
+                // some allocations already there
             }
         } else {
-            if (allocation) {
-                //
+            if (this.#allocations.length === 0) {
+                newAllocations.push(1.0);
             } else {
-                const newTotal = this.#allocations.length + 1;
+                const numberOfItems = this.#allocations.length + 1;
+                const newAllocation = 1 / numberOfItems;
+                const remainingAllocation = 1 - newAllocation;
+
                 newAllocations.push(
-                    ...this.#allocations.map((i) => i / newTotal)
+                    ...this.#allocations.map((i) => i * remainingAllocation)
                 );
-                newAllocations.push(1.0 / newTotal);
+                newAllocations.push(newAllocation);
+
+                newAllocations = newAllocations.map(this.#toPrecision);
+
+                // add the remainder to the last item
+                const newTotal = this.#getTotal(newAllocations);
+                const remainder = this.#toPrecision(1 - newTotal);
+                newAllocations[newAllocations.length - 1] += remainder;
             }
         }
 
         return new ProportionalAllocator(newAllocations);
+    }
+
+    #getTotal(allocations: number[]) {
+        return allocations.reduce(
+            (previousValue, currentValue) => previousValue + currentValue,
+            0
+        );
+    }
+
+    #toPrecision(allocation: number) {
+        return Number.parseFloat(allocation.toPrecision(4));
     }
 
     #validate(allocation: number) {
