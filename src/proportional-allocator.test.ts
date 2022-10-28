@@ -59,39 +59,45 @@ describe('ProportionalAllocator', () => {
             }).toThrowError(errorMsg);
         });
 
-        it("adds 1st allocation with 100% when it's added without specified value", () => {
-            let allocator = new ProportionalAllocator();
-            allocator = allocator.push();
-            expect(allocator.getRawAllocations()).toStrictEqual([1.0]);
-        });
-
-        it('adds 1st allocation with specified value', () => {
-            let allocator = new ProportionalAllocator();
-            allocator = allocator.push(0.5);
-            expect(allocator.getRawAllocations()).toStrictEqual([0.5]);
-        });
-
-        it('adds 2nd allocation and sets both allocations to 50%', () => {
-            let allocator = new ProportionalAllocator([1]);
-            allocator = allocator.push();
-            expect(allocator.getRawAllocations()).toStrictEqual([0.5, 0.5]);
-        });
-
-        it('adds 3rd allocation and sets all three allocations to ~33.33%', () => {
-            let allocator = new ProportionalAllocator([0.5, 0.5]);
-            allocator = allocator.push();
-            expect(allocator.getRawAllocations()).toStrictEqual([
-                0.3333, 0.3333, 0.3334,
-            ]);
-        });
-
-        it('adds 3rd allocation, sets it to ~33.33% and lowers other proportionally', () => {
-            let allocator = new ProportionalAllocator([0.3333, 0.6667]);
-            allocator = allocator.push();
-            expect(allocator.getRawAllocations()).toStrictEqual([
-                0.2222, 0.4445, 0.3333,
-            ]);
-        });
+        test.each([
+            [
+                "adds 1st allocation with 100% when it's added without specified value",
+                [],
+                undefined,
+                [1.0],
+            ],
+            ['adds 1st allocation with specified value', [], 0.5, [0.5]],
+            [
+                'adds 2nd allocation and sets both allocations to 50%',
+                [1],
+                undefined,
+                [0.5, 0.5],
+            ],
+            [
+                'adds 3rd allocation and sets all three allocations to ~33.33%',
+                [0.5, 0.5],
+                undefined,
+                [0.3333, 0.3333, 0.3334],
+            ],
+            [
+                'adds 3rd allocation, sets it to ~33.33% and lowers other proportionally',
+                [0.3333, 0.6667],
+                undefined,
+                [0.2222, 0.4445, 0.3333],
+            ],
+        ])(
+            '%s',
+            (
+                _: string,
+                input: number[],
+                allocation: number | undefined,
+                expected: number[]
+            ) => {
+                let allocator = new ProportionalAllocator(input);
+                allocator = allocator.push(allocation);
+                expect(allocator.getRawAllocations()).toStrictEqual(expected);
+            }
+        );
     });
 
     describe('getRawAllocations', () => {
