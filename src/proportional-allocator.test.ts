@@ -53,7 +53,7 @@ describe('ProportionalAllocator', () => {
         });
     });
 
-    describe('push allocation', () => {
+    describe('push', () => {
         it('throws error when added allocation is < 0', () => {
             expect(() => {
                 let allocator = new ProportionalAllocator();
