@@ -15,10 +15,9 @@
 // - can an item have 0% allocation? e.g. add item1 -> 100%, lock it, add item2 -> 0% ? yes, this is a valid use case
 // - what should happen when item is added with specified allocation, but all other are locked? should it get 0%? yes
 // - do we want to allow increase/decrease of multiple items at the same time? what's the use case for this? let's skip it for now
-// 
+//
 
 export class ProportionalAllocator {
-
     #allocations: number[] = [];
 
     constructor(allocator?: ProportionalAllocator | undefined) {
