@@ -82,7 +82,7 @@ export class ProportionalAllocator {
     }
 
     #toPrecision(allocation: number) {
-        return Number.parseFloat(allocation.toPrecision(4));
+        return Number.parseFloat(allocation.toFixed(4));
     }
 
     #validate(allocation: number) {
