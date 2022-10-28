@@ -1,5 +1,6 @@
 # TODO
 - implement library
-- publish to npm registry
 - find free CI/CD online pipeline
 - setup CI/CD pipeline
+- publish to npm registry
+- create a gif with sliders that show the allocations mechanism
