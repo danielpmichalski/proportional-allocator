@@ -27,19 +27,13 @@ describe('ProportionalAllocator', () => {
 
         it('throws error when sum of allocations is > 1', () => {
             expect(
-                () =>
-                    new ProportionalAllocator([
-                        0.999999999999999, 0.000000000000002,
-                    ])
+                () => new ProportionalAllocator([0.9999, 0.0002])
             ).toThrowError('sum of input allocations cannot exceed 1');
         });
 
         it('throws error when sum of allocations is < 1', () => {
             expect(
-                () =>
-                    new ProportionalAllocator([
-                        0.999999999999998, 0.000000000000001,
-                    ])
+                () => new ProportionalAllocator([0.9998, 0.0001])
             ).toThrowError('sum of input allocations must equal 1');
         });
 
@@ -68,41 +62,101 @@ describe('ProportionalAllocator', () => {
             }).toThrowError(errorMsg);
         });
 
-        test.each([
-            ['empty + undefined => [1.0]', undefined, undefined, [1.0]],
-            ['empty + 1.0 => [1.0]', undefined, 1, [1]],
-            ['[1] + undefined => [0.5, 0.5]', [1], undefined, [0.5, 0.5]],
-            [
-                '[0.5, 0.5] + undefined => [0.3333, 0.3333, 0.3334]',
-                [0.5, 0.5],
-                undefined,
-                [0.3333, 0.3333, 0.3334],
-            ],
-            [
-                '[0.3333, 0.6667] + undefined => [0.2222, 0.4445, 0.3333]',
-                [0.3333, 0.6667],
-                undefined,
-                [0.2222, 0.4445, 0.3333],
-            ],
-            [
-                '[0.0001, 0.9999] + undefined => [0.0001, 0.6666, 0.3333]',
-                [0.0001, 0.9999],
-                undefined,
-                [0.0001, 0.6666, 0.3333],
-            ],
-        ])(
-            '%s',
-            (
-                _: string,
-                input: number[] | undefined,
-                allocation: number | undefined,
-                expected: number[]
-            ) => {
-                let allocator = new ProportionalAllocator(input);
-                allocator = allocator.push(allocation);
-                expect(allocator.getRawAllocations()).toStrictEqual(expected);
-            }
-        );
+        describe('add allocation without value', () => {
+            test.each([
+                ['empty + undefined => [1.0]', undefined, undefined, [1.0]],
+                ['[1] + undefined => [0.5, 0.5]', [1], undefined, [0.5, 0.5]],
+                [
+                    '[0.5, 0.5] + undefined => [0.3333, 0.3333, 0.3334]',
+                    [0.5, 0.5],
+                    undefined,
+                    [0.3333, 0.3333, 0.3334],
+                ],
+                [
+                    '[0.3333, 0.6667] + undefined => [0.2222, 0.4445, 0.3333]',
+                    [0.3333, 0.6667],
+                    undefined,
+                    [0.2222, 0.4445, 0.3333],
+                ],
+                [
+                    '[0.6666, 0.3334] + undefined => [0.4444, 0.2223, 0.3333]',
+                    [0.6666, 0.3334],
+                    undefined,
+                    [0.4444, 0.2223, 0.3333],
+                ],
+                [
+                    '[0.0001, 0.9999] + undefined => [0.0001, 0.6666, 0.3333]',
+                    [0.0001, 0.9999],
+                    undefined,
+                    [0.0001, 0.6666, 0.3333],
+                ],
+                [
+                    '[0.9999, 0.0001] + undefined => [0.6666, 0.0001, 0.3333]',
+                    [0.9999, 0.0001],
+                    undefined,
+                    [0.6666, 0.0001, 0.3333],
+                ],
+                [
+                    '[0.3333, 0.3333, 0.3334] + undefined => [0.25, 0.25, 0.25, 0.25]',
+                    [0.3333, 0.3333, 0.3334],
+                    undefined,
+                    [0.25, 0.25, 0.25, 0.25],
+                ],
+                [
+                    '[0.0001, 0.0001, 0.9998] + undefined => [0.0001, 0.0001, 0.7499, 0.2499]',
+                    [0.0001, 0.0001, 0.9998],
+                    undefined,
+                    [0.0001, 0.0001, 0.7499, 0.2499],
+                ],
+                [
+                    '[0.0001, 0.9998, 0.0001] + undefined => [0.0001, 0.7499, 0.0001, 0.2499]',
+                    [0.0001, 0.9998, 0.0001],
+                    undefined,
+                    [0.0001, 0.7499, 0.0001, 0.2499],
+                ],
+                [
+                    '[0.9998, 0.0001, 0.0001] + undefined => [0.7499, 0.0001, 0.0001, 0.2499]',
+                    [0.9998, 0.0001, 0.0001],
+                    undefined,
+                    [0.7499, 0.0001, 0.0001, 0.2499],
+                ],
+            ])(
+                '%s',
+                (
+                    _: string,
+                    input: number[] | undefined,
+                    allocation: number | undefined,
+                    expected: number[]
+                ) => {
+                    let allocator = new ProportionalAllocator(input);
+                    allocator = allocator.push(allocation);
+                    expect(allocator.getRawAllocations()).toStrictEqual(
+                        expected
+                    );
+                }
+            );
+        });
+
+        describe('add allocation with value', () => {
+            test.each([
+                ['empty + 1.0 => [1.0]', undefined, 1, [1]],
+                ['[1] + 0.5 => [0.5, 0.5]', [1], 0.5, [0.5, 0.5]],
+            ])(
+                '%s',
+                (
+                    _: string,
+                    input: number[] | undefined,
+                    allocation: number | undefined,
+                    expected: number[]
+                ) => {
+                    let allocator = new ProportionalAllocator(input);
+                    allocator = allocator.push(allocation);
+                    expect(allocator.getRawAllocations()).toStrictEqual(
+                        expected
+                    );
+                }
+            );
+        });
     });
 
     describe('getRawAllocations', () => {

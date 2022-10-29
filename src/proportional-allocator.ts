@@ -18,74 +18,87 @@
 // - do we want to allow increase/decrease of multiple items at the same time? what's the use case for this? let's skip it for now
 //
 
+const precision = 4;
+
+/**
+ * Issues:
+ * - some items might get 0 value when adding them to collection of size around the higher boundary, i.e. around 10,000 items (due to precision: 4)
+ */
 export class ProportionalAllocator {
-    #allocations: number[] = [];
+    private allocations: number[] = [];
 
     constructor(allocations?: number[]) {
         if (allocations) {
-            allocations.forEach((item) => this.#validate(item));
-            const total = this.#getTotal(allocations);
+            allocations.forEach((item) => this.validate(item));
+            const total = this.toPrecision(this.getTotal(allocations));
             if (total > 1) {
                 throw new Error('sum of input allocations cannot exceed 1');
             }
             if (total < 1) {
                 throw new Error('sum of input allocations must equal 1');
             }
-            this.#allocations.push(...allocations);
+            this.allocations.push(...allocations);
         }
     }
 
     getRawAllocations() {
-        return [...this.#allocations].map(this.#toPrecision);
+        return [...this.allocations].map(this.toPrecision);
     }
 
     push(allocation?: number): ProportionalAllocator {
-        allocation && this.#validate(allocation);
+        allocation && this.validate(allocation);
 
         let newAllocations = [];
         if (allocation) {
-            if (this.#allocations.length === 0) {
+            if (this.allocations.length === 0) {
                 newAllocations.push(allocation);
             } else {
-                // some allocations already there
+                newAllocations = this.addAndRecalculate(allocation);
             }
         } else {
-            if (this.#allocations.length === 0) {
+            if (this.allocations.length === 0) {
                 newAllocations.push(1.0);
             } else {
-                const numberOfItems = this.#allocations.length + 1;
+                const numberOfItems = this.allocations.length + 1;
                 const newAllocation = 1 / numberOfItems;
-                const remainingAllocation = 1 - newAllocation;
 
-                newAllocations.push(
-                    ...this.#allocations.map((i) => i * remainingAllocation)
-                );
-                newAllocations.push(newAllocation);
-
-                newAllocations = newAllocations.map(this.#toPrecision);
-
-                // add the remainder to the last item
-                const newTotal = this.#getTotal(newAllocations);
-                const remainder = this.#toPrecision(1 - newTotal);
-                newAllocations[newAllocations.length - 1] += remainder;
+                newAllocations = this.addAndRecalculate(newAllocation);
             }
         }
 
         return new ProportionalAllocator(newAllocations);
     }
 
-    #getTotal(allocations: number[]) {
+    private addAndRecalculate(allocation: number) {
+        const remainingAllocation = 1 - allocation;
+
+        let newAllocations: number[] = [];
+        newAllocations.push(
+            ...this.allocations.map((i) => i * remainingAllocation)
+        );
+        newAllocations.push(allocation);
+        newAllocations = newAllocations.map(this.toPrecision);
+
+        // add the remainder to the last item
+        const newTotal = this.getTotal(newAllocations);
+        const remainder = this.toPrecision(1 - newTotal);
+        newAllocations[newAllocations.length - 1] += remainder;
+
+        return newAllocations;
+    }
+
+    private getTotal(allocations: number[]) {
         return allocations.reduce(
             (previousValue, currentValue) => previousValue + currentValue,
             0
         );
     }
 
-    #toPrecision(allocation: number) {
-        return Number.parseFloat(allocation.toFixed(4));
+    private toPrecision(allocation: number) {
+        return Number.parseFloat(allocation.toFixed(precision));
     }
 
-    #validate(allocation: number) {
+    private validate(allocation: number) {
         if (allocation < 0 || allocation > 1) {
             throw new Error('allocation must be between 0 and 1');
         }
