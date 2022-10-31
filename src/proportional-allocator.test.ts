@@ -192,6 +192,41 @@ describe('ProportionalAllocator', () => {
                 }
             );
         });
+
+        describe('with value', () => {
+            test.each([
+                ['undefined + 1.0 at 0 => [1]', undefined, 0, 1.0, [1]],
+                ['undefined + 0.5 at 1 => [1]', undefined, 1, 0.5, [1]],
+                ['undefined + 0.5 at 100 => [1]', undefined, 100, 0.5, [1]],
+                ['[1] + 1.0 at 1 => [0, 1]', [1], 1, 1.0, [0, 1]],
+                ['[1] + 1.0 at 0 => [1, 0]', [1], 0, 1.0, [1, 0]],
+                ['[1] + 1.0 at -1 => [0, 1]', [1], -1, 1.0, [0, 1]],
+                ['[1] + 0.75 at 1 => [0.25, 0.75]', [1], 1, 0.75, [0.25, 0.75]],
+                ['[1] + 0.75 at 0 => [0.75, 0.25]', [1], 0, 0.75, [0.75, 0.25]],
+                [
+                    '[1] + 0.75 at -1 => [0.25, 0.75]',
+                    [1],
+                    -1,
+                    0.75,
+                    [0.25, 0.75],
+                ],
+            ])(
+                '%s',
+                (
+                    _: string,
+                    input: number[] | undefined,
+                    position: number,
+                    allocation: number | undefined,
+                    expected: number[]
+                ) => {
+                    let allocator = new ProportionalAllocator(input);
+                    allocator = allocator.add(position, allocation);
+                    expect(allocator.getRawAllocations()).toStrictEqual(
+                        expected
+                    );
+                }
+            );
+        });
     });
 
     describe('push', () => {
