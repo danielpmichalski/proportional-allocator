@@ -55,8 +55,8 @@ export class ProportionalAllocator {
      * allocator.add(1) => [1]
      * // allocator with [0.4, 0.6]
      * allocator.add(0) => [0.333..., 0.222..., 0.444...]
-     * allocator.add(-1) => [0.222..., 0.444..., 0.333...]
-     * allocator.add(7) => [0.222..., 0.333..., 0.444...]
+     * allocator.add(-1) => [0.222..., 0.444..., 0.333...] // added at the end
+     * allocator.add(7) => [0.222..., 0.333..., 0.444...] // position rotated
      * // add with value
      * allocator.add(7, 0.5) => [0.2, 0.5, 0.3]
      *
@@ -87,28 +87,11 @@ export class ProportionalAllocator {
         return [...this.allocations];
     }
 
-    // TODO add JSDoc
     /**
-     *
-     * @param allocation
-     * @returns
+     * Adds the given allocation at the end of the collection.
      */
     push(allocation?: number): ProportionalAllocator {
-        allocation && this.validate(allocation);
-
-        if (this.allocations.length === 0) {
-            return new ProportionalAllocator([1]);
-        } else {
-            if (allocation) {
-                return new ProportionalAllocator(
-                    this.recalculateAndInsert(allocation)
-                );
-            } else {
-                return new ProportionalAllocator(
-                    this.recalculateAndInsert(1 / (this.allocations.length + 1))
-                );
-            }
-        }
+        return this.add(this.allocations.length, allocation);
     }
 
     private recalculateAndInsert(
