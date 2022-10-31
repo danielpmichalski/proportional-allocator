@@ -5,7 +5,7 @@
 
 // operations?
 // mode: proportional
-// - push item
+// + push item
 // - add item at index
 // - remove last item by popping it
 // - remove item at index
@@ -43,10 +43,56 @@ export class ProportionalAllocator {
         }
     }
 
+    /**
+     * Adds a new allocation at given position.
+     *
+     * The position can be negative or exceed the current collection's length. See examples below.
+     *
+     * @example
+     * // empty allocator
+     * allocator.add(0, undefined) => [1]
+     * allocator.add(-1) => [1]
+     * allocator.add(1) => [1]
+     * // allocator with [0.4, 0.6]
+     * allocator.add(0) => [0.333..., 0.222..., 0.444...]
+     * allocator.add(-1) => [0.222..., 0.444..., 0.333...]
+     * allocator.add(7) => [0.222..., 0.333..., 0.444...]
+     * // add with value
+     * allocator.add(7, 0.5) => [0.2, 0.5, 0.3]
+     *
+     * @param position the destined position of added element in the collection
+     * @param allocation value of allocation
+     */
+    add(
+        position: number,
+        allocation?: number | undefined
+    ): ProportionalAllocator {
+        allocation && this.validate(allocation);
+
+        if (allocation) {
+            return new ProportionalAllocator(
+                this.recalculateAndInsert(allocation, position)
+            );
+        } else {
+            return new ProportionalAllocator(
+                this.recalculateAndInsert(
+                    1 / (this.allocations.length + 1),
+                    position
+                )
+            );
+        }
+    }
+
     getRawAllocations() {
         return [...this.allocations];
     }
 
+    // TODO add JSDoc
+    /**
+     *
+     * @param allocation
+     * @returns
+     */
     push(allocation?: number): ProportionalAllocator {
         allocation && this.validate(allocation);
 
@@ -55,27 +101,37 @@ export class ProportionalAllocator {
         } else {
             if (allocation) {
                 return new ProportionalAllocator(
-                    this.recalculateAndPush(allocation)
+                    this.recalculateAndInsert(allocation)
                 );
             } else {
-                const numberOfItems = this.allocations.length + 1;
-                const newAllocation = 1 / numberOfItems;
-
                 return new ProportionalAllocator(
-                    this.recalculateAndPush(newAllocation)
+                    this.recalculateAndInsert(1 / (this.allocations.length + 1))
                 );
             }
         }
     }
 
-    private recalculateAndPush(allocation: number) {
+    private recalculateAndInsert(
+        allocation: number,
+        position?: number | undefined
+    ) {
         const remainingAllocation = 1 - allocation;
 
-        const newAllocations: number[] = [];
+        let newAllocations: number[] = [];
         newAllocations.push(
             ...this.allocations.map((i) => i * remainingAllocation)
         );
-        newAllocations.push(allocation);
+        if (position) {
+            newAllocations = [
+                ...newAllocations.slice(0, position),
+                allocation,
+                ...newAllocations.slice(position, newAllocations.length - 1),
+            ];
+            // TODO handle position < 0
+            // TODO handle position > length - 1 (or length?)
+        } else {
+            newAllocations.push(allocation);
+        }
 
         const newTotal = this.getTotal(newAllocations);
         newAllocations[newAllocations.length - 1] += 1 - newTotal;
