@@ -121,16 +121,23 @@ export class ProportionalAllocator {
         newAllocations.push(
             ...this.allocations.map((i) => i * remainingAllocation)
         );
-        if (position) {
-            newAllocations = [
-                ...newAllocations.slice(0, position),
-                allocation,
-                ...newAllocations.slice(position, newAllocations.length - 1),
-            ];
-            // TODO handle position < 0
-            // TODO handle position > length - 1 (or length?)
-        } else {
+        if (!position) {
             newAllocations.push(allocation);
+        } else {
+            if (position < 0) {
+                // TODO handle position < 0
+            } else if (position > newAllocations.length) {
+                // TODO handle position > length - 1 (or length?)
+            } else {
+                newAllocations = [
+                    ...newAllocations.slice(0, position),
+                    allocation,
+                    ...newAllocations.slice(
+                        position,
+                        newAllocations.length - 1
+                    ),
+                ];
+            }
         }
 
         const newTotal = this.getTotal(newAllocations);
