@@ -4,13 +4,21 @@
 // if it's stateless, then it needs to return a new object everytime
 
 // operations?
+// mode: proportional
 // - push item
-// - remove last item by popping it
 // - add item at index
+// - remove last item by popping it
 // - remove item at index
-// - increase/decrease item's allocation by X% with proportional mode
-// - increase/decrease item's allocation by X% with equal mode
-// - clean up - remove all items that have allocation 0.0
+// - increase item's allocation by X%
+// - decrease item's allocation by X%
+// mode: equal
+// - push item
+// - add item at index
+// - remove last item by popping it
+// - remove item at index
+// - increase item's allocation by X% with equal mode
+// - decrease item's allocation by X% with equal mode
+// - clean up - remove all items that have allocation equal to 0
 
 // questions
 // - can an item have 0% allocation? e.g. add item1 -> 100%, lock it, add item2 -> 0% ? yes, this is a valid use case
@@ -70,16 +78,14 @@ export class ProportionalAllocator {
     private addAndRecalculate(allocation: number) {
         const remainingAllocation = 1 - allocation;
 
-        let newAllocations: number[] = [];
+        const newAllocations: number[] = [];
         newAllocations.push(
             ...this.allocations.map((i) => i * remainingAllocation)
         );
         newAllocations.push(allocation);
 
-        // add the remainder to the last item
         const newTotal = this.getTotal(newAllocations);
-        const remainder = 1 - newTotal;
-        newAllocations[newAllocations.length - 1] += remainder;
+        newAllocations[newAllocations.length - 1] += 1 - newTotal;
 
         return newAllocations;
     }
