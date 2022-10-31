@@ -117,33 +117,46 @@ export class ProportionalAllocator {
     ) {
         const remainingAllocation = 1 - allocation;
 
-        let newAllocations: number[] = [];
-        newAllocations.push(
-            ...this.allocations.map((i) => i * remainingAllocation)
+        let newAllocations: number[] = [
+            ...this.allocations.map((i) => i * remainingAllocation),
+        ];
+        newAllocations = this.insertAllocation(
+            newAllocations,
+            position,
+            allocation
         );
-        if (!position) {
-            newAllocations.push(allocation);
-        } else {
-            if (position < 0) {
-                // TODO handle position < 0
-            } else if (position > newAllocations.length) {
-                // TODO handle position > length - 1 (or length?)
-            } else {
-                newAllocations = [
-                    ...newAllocations.slice(0, position),
-                    allocation,
-                    ...newAllocations.slice(
-                        position,
-                        newAllocations.length - 1
-                    ),
-                ];
-            }
-        }
 
         const newTotal = this.getTotal(newAllocations);
         newAllocations[newAllocations.length - 1] += 1 - newTotal;
 
         return newAllocations;
+    }
+
+    private insertAllocation(
+        allocations: number[],
+        position: number | undefined,
+        allocation: number
+    ) {
+        if (position === undefined) {
+            allocations.push(allocation);
+        } else {
+            const rotatedPosition = this.getRotatedPosition(position);
+            allocations = [
+                ...allocations.slice(0, rotatedPosition),
+                allocation,
+                ...allocations.slice(rotatedPosition, allocations.length),
+            ];
+        }
+        return allocations;
+    }
+
+    private getRotatedPosition(position: number) {
+        const length = this.allocations.length;
+        if (position >= 0) {
+            return position % (length + 1);
+        } else {
+            return (length + 1 + (position % (length + 1))) % (length + 1);
+        }
     }
 
     private getTotal(allocations: number[]) {
