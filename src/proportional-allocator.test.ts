@@ -64,7 +64,7 @@ describe('ProportionalAllocator', () => {
 
         describe('add allocation without value', () => {
             test.each([
-                ['empty + undefined => [1.0]', undefined, undefined, [1.0]],
+                ['undefined + undefined => [1.0]', undefined, undefined, [1.0]],
                 ['[1] + undefined => [0.5, 0.5]', [1], undefined, [0.5, 0.5]],
                 [
                     '[0.5, 0.5] + undefined => [0.33333333333333337, 0.33333333333333337, 0.3333333333333333]',
@@ -157,6 +157,7 @@ describe('ProportionalAllocator', () => {
 
         describe('add allocation with value', () => {
             test.each([
+                ['empty + 0.1 => [1.0]', undefined, 0.5, [1]],
                 ['empty + 1.0 => [1.0]', undefined, 1, [1]],
                 ['[1] + 0.5 => [0.5, 0.5]', [1], 0.5, [0.5, 0.5]],
                 [

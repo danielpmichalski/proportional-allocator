@@ -26,10 +26,6 @@
 // - do we want to allow increase/decrease of multiple items at the same time? what's the use case for this? let's skip it for now
 //
 
-/**
- * Issues:
- * - some items might get 0 value when adding them to collection of size around the higher boundary, i.e. around 10,000 items (due to precision: 4)
- */
 export class ProportionalAllocator {
     private allocations: number[] = [];
 
@@ -54,28 +50,25 @@ export class ProportionalAllocator {
     push(allocation?: number): ProportionalAllocator {
         allocation && this.validate(allocation);
 
-        let newAllocations = [];
-        if (allocation) {
-            if (this.allocations.length === 0) {
-                newAllocations.push(allocation);
-            } else {
-                newAllocations = this.addAndRecalculate(allocation);
-            }
+        if (this.allocations.length === 0) {
+            return new ProportionalAllocator([1]);
         } else {
-            if (this.allocations.length === 0) {
-                newAllocations.push(1.0);
+            if (allocation) {
+                return new ProportionalAllocator(
+                    this.recalculateAndPush(allocation)
+                );
             } else {
                 const numberOfItems = this.allocations.length + 1;
                 const newAllocation = 1 / numberOfItems;
 
-                newAllocations = this.addAndRecalculate(newAllocation);
+                return new ProportionalAllocator(
+                    this.recalculateAndPush(newAllocation)
+                );
             }
         }
-
-        return new ProportionalAllocator(newAllocations);
     }
 
-    private addAndRecalculate(allocation: number) {
+    private recalculateAndPush(allocation: number) {
         const remainingAllocation = 1 - allocation;
 
         const newAllocations: number[] = [];
