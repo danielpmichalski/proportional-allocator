@@ -18,8 +18,6 @@
 // - do we want to allow increase/decrease of multiple items at the same time? what's the use case for this? let's skip it for now
 //
 
-const precision = 4;
-
 /**
  * Issues:
  * - some items might get 0 value when adding them to collection of size around the higher boundary, i.e. around 10,000 items (due to precision: 4)
@@ -30,7 +28,7 @@ export class ProportionalAllocator {
     constructor(allocations?: number[]) {
         if (allocations) {
             allocations.forEach((item) => this.validate(item));
-            const total = this.toPrecision(this.getTotal(allocations));
+            const total = this.getTotal(allocations);
             if (total > 1) {
                 throw new Error('sum of input allocations cannot exceed 1');
             }
@@ -42,7 +40,7 @@ export class ProportionalAllocator {
     }
 
     getRawAllocations() {
-        return [...this.allocations].map(this.toPrecision);
+        return [...this.allocations];
     }
 
     push(allocation?: number): ProportionalAllocator {
@@ -77,11 +75,10 @@ export class ProportionalAllocator {
             ...this.allocations.map((i) => i * remainingAllocation)
         );
         newAllocations.push(allocation);
-        newAllocations = newAllocations.map(this.toPrecision);
 
         // add the remainder to the last item
         const newTotal = this.getTotal(newAllocations);
-        const remainder = this.toPrecision(1 - newTotal);
+        const remainder = 1 - newTotal;
         newAllocations[newAllocations.length - 1] += remainder;
 
         return newAllocations;
@@ -92,10 +89,6 @@ export class ProportionalAllocator {
             (previousValue, currentValue) => previousValue + currentValue,
             0
         );
-    }
-
-    private toPrecision(allocation: number) {
-        return Number.parseFloat(allocation.toFixed(precision));
     }
 
     private validate(allocation: number) {
