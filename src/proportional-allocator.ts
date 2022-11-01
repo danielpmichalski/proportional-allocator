@@ -84,6 +84,24 @@ export class ProportionalAllocator {
     }
 
     /**
+     * Removes the last item and returns it.
+     */
+    pop() {
+        if (this.allocations.length === 0) {
+            return undefined;
+        } else {
+            const lastItem = this.allocations.pop()!;
+            const newLength = this.allocations.length;
+            const denominator = newLength > 0 ? newLength : 1;
+            const addend = lastItem / denominator;
+            this.allocations.forEach(
+                (value, index, array) => (array[index] += addend)
+            );
+            return lastItem;
+        }
+    }
+
+    /**
      * Adds the given allocation at the end of the collection.
      */
     push(allocation?: number): ProportionalAllocator {
