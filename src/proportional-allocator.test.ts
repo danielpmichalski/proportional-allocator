@@ -430,4 +430,21 @@ describe('ProportionalAllocator', () => {
             expect(allocator.getAllocations()).toStrictEqual([0.75, 0.25]);
         });
     });
+
+    describe('miscellaneous', () => {
+        it('allows chaining operations', () => {
+            expect(
+                new ProportionalAllocator()
+                    .add(0)
+                    .add(0)
+                    .add(2, 0.4)
+                    .push()
+                    .push(0.11)
+                    .getAllocations()
+            ).toStrictEqual([
+                0.20024999999999998, 0.20024999999999998, 0.26700000000000007,
+                0.2225, 0.11,
+            ]);
+        });
+    });
 });
