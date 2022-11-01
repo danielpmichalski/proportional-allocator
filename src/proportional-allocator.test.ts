@@ -590,6 +590,20 @@ describe('ProportionalAllocator', () => {
         );
     });
 
+    describe('update', () => {
+        it('throws error when added allocation is < 0', () => {
+            expect(() => {
+                new ProportionalAllocator().update(0, -0.000000000000001);
+            }).toThrowError('allocation must be between 0 and 1');
+        });
+
+        it('throws error when added allocation is > 1', () => {
+            expect(() => {
+                new ProportionalAllocator().update(0, 1.000000000000001);
+            }).toThrowError('allocation must be between 0 and 1');
+        });
+    });
+
     describe('miscellaneous', () => {
         it('chaining operations is possible', () => {
             expect(

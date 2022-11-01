@@ -1,20 +1,17 @@
-// stateless? no! no need; it's easier to use the lib that way
-
 // TODO
 // mode: proportional
 // + push item
 // + add item at index
 // + remove last item by popping it
 // + remove item at index
-// - increase item's allocation by X%
-// - decrease item's allocation by X%
+// - update item's allocation
 // mode: equal
 // - push item
 // - add item at index
 // - remove last item by popping it
 // - remove item at index
-// - increase item's allocation by X% with equal mode
-// - decrease item's allocation by X% with equal mode
+// - update item's allocation
+// other ops:
 // - clean up - remove all items that have allocation equal to 0
 // - add JSDoc to the class
 
@@ -126,6 +123,10 @@ export class ProportionalAllocator {
             );
             return removedItem;
         }
+    }
+
+    update(position: number, newAllocation: number) {
+        this.validate(newAllocation);
     }
 
     private insertAndRecalculate(allocation: number, position: number) {
