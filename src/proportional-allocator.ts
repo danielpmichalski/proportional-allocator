@@ -6,7 +6,7 @@
 // operations?
 // mode: proportional
 // + push item
-// - add item at index
+// + add item at index
 // - remove last item by popping it
 // - remove item at index
 // - increase item's allocation by X%
@@ -54,13 +54,14 @@ export class ProportionalAllocator {
      * allocator.add(-1) => [1]
      * allocator.add(1) => [1]
      * // allocator with [0.4, 0.6]
+     * // index 0 is the first item, as with normal array
      * allocator.add(0) => [0.333..., 0.222..., 0.444...]
      * allocator.add(-1) => [0.222..., 0.444..., 0.333...] // added at the end
      * allocator.add(7) => [0.222..., 0.333..., 0.444...] // position rotated
      * // add with value
      * allocator.add(7, 0.5) => [0.2, 0.5, 0.3]
      *
-     * @param position the destined position of added element in the collection
+     * @param position the position of newly added element in the collection
      * @param allocation value of allocation
      */
     add(
