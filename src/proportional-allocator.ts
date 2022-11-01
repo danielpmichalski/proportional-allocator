@@ -4,8 +4,8 @@
 // mode: proportional
 // + push item
 // + add item at index
-// - remove last item by popping it
-// - remove item at index
+// + remove last item by popping it
+// + remove item at index
 // - increase item's allocation by X%
 // - decrease item's allocation by X%
 // mode: equal
@@ -87,18 +87,7 @@ export class ProportionalAllocator {
      * Removes the last item and returns it.
      */
     pop() {
-        if (this.allocations.length === 0) {
-            return undefined;
-        } else {
-            const lastItem = this.allocations.pop()!;
-            const newLength = this.allocations.length;
-            const denominator = newLength > 0 ? newLength : 1;
-            const addend = lastItem / denominator;
-            this.allocations.forEach(
-                (value, index, array) => (array[index] += addend)
-            );
-            return lastItem;
-        }
+        return this.remove(this.allocations.length - 1);
     }
 
     /**
@@ -108,12 +97,41 @@ export class ProportionalAllocator {
         return this.add(this.allocations.length, allocation);
     }
 
-    private insertAndRecalculate(allocation: number, position: number) {
-        const remainingAllocation = 1 - allocation;
+    /**
+     * Removes an item at the specified position, returning the value.
+     *
+     * If position is negative or higher than size - 1, then it returns `undefined`.
+     *
+     * @example
+     * // allocator with []
+     * allocator.remove(-1) === undefined
+     * // allocator with [1]
+     * allocator.remove(1) === undefined; // allocator still has [1]
+     * allocator.remove(0) === 1; // allocator now has []
+     */
+    remove(position: number) {
+        if (
+            this.allocations.length === 0 ||
+            position < 0 ||
+            position >= this.allocations.length
+        ) {
+            return undefined;
+        } else {
+            const [removedItem] = this.allocations.splice(position, 1);
+            const newLength = this.allocations.length;
+            const denominator = newLength > 0 ? newLength : 1;
+            const addend = removedItem / denominator;
+            this.allocations.forEach(
+                (_, index, array) => (array[index] += addend)
+            );
+            return removedItem;
+        }
+    }
 
+    private insertAndRecalculate(allocation: number, position: number) {
+        const factor = 1 - allocation;
         this.allocations.forEach(
-            (value, index, array) =>
-                (array[index] = value * remainingAllocation)
+            (value, index, array) => (array[index] = value * factor)
         );
         this.insertAllocation(position, allocation);
 
@@ -123,18 +141,18 @@ export class ProportionalAllocator {
 
     private insertAllocation(position: number, allocation: number) {
         this.allocations.splice(
-            this.getRotatedPosition(position),
+            this.getRotatedAddPosition(position),
             0, // delete 0 elements
             allocation
         );
     }
 
-    private getRotatedPosition(position: number) {
+    private getRotatedAddPosition(position: number) {
         const length = this.allocations.length;
         if (position >= 0) {
             return position % (length + 1);
         } else {
-            return (length + 1 + (position % (length + 1))) % (length + 1);
+            return this.rotateNegativePosition(length, position);
         }
     }
 
@@ -143,6 +161,10 @@ export class ProportionalAllocator {
             (previousValue, currentValue) => previousValue + currentValue,
             0
         );
+    }
+
+    private rotateNegativePosition(length: number, position: number) {
+        return (length + 1 + (position % (length + 1))) % (length + 1);
     }
 
     private validate(allocation: number) {
