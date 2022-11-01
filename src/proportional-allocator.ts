@@ -1,9 +1,6 @@
 // stateless? no! no need; it's easier to use the lib that way
 
-// how should one use the lib? what is the API?
-// if it's stateless, then it needs to return a new object everytime
-
-// operations?
+// TODO
 // mode: proportional
 // + push item
 // + add item at index
@@ -19,6 +16,7 @@
 // - increase item's allocation by X% with equal mode
 // - decrease item's allocation by X% with equal mode
 // - clean up - remove all items that have allocation equal to 0
+// - add JSDoc to the class
 
 // questions
 // - can an item have 0% allocation? e.g. add item1 -> 100%, lock it, add item2 -> 0% ? yes, this is a valid use case
@@ -71,20 +69,17 @@ export class ProportionalAllocator {
         allocation && this.validate(allocation);
 
         if (allocation) {
-            return new ProportionalAllocator(
-                this.recalculateAndInsert(allocation, position)
-            );
+            this.insertAndRecalculate(allocation, position);
         } else {
-            return new ProportionalAllocator(
-                this.recalculateAndInsert(
-                    1 / (this.allocations.length + 1),
-                    position
-                )
+            this.insertAndRecalculate(
+                1 / (this.allocations.length + 1),
+                position
             );
         }
+        return this;
     }
 
-    getRawAllocations() {
+    getAllocations() {
         return [...this.allocations];
     }
 
@@ -95,43 +90,25 @@ export class ProportionalAllocator {
         return this.add(this.allocations.length, allocation);
     }
 
-    private recalculateAndInsert(
-        allocation: number,
-        position?: number | undefined
-    ) {
+    private insertAndRecalculate(allocation: number, position: number) {
         const remainingAllocation = 1 - allocation;
 
-        let newAllocations: number[] = [
-            ...this.allocations.map((i) => i * remainingAllocation),
-        ];
-        newAllocations = this.insertAllocation(
-            newAllocations,
-            position,
-            allocation
+        this.allocations.forEach(
+            (value, index, array) =>
+                (array[index] = value * remainingAllocation)
         );
+        this.insertAllocation(position, allocation);
 
-        const newTotal = this.getTotal(newAllocations);
-        newAllocations[newAllocations.length - 1] += 1 - newTotal;
-
-        return newAllocations;
+        const newTotal = this.getTotal(this.allocations);
+        this.allocations[this.allocations.length - 1] += 1 - newTotal;
     }
 
-    private insertAllocation(
-        allocations: number[],
-        position: number | undefined,
-        allocation: number
-    ) {
-        if (position === undefined) {
-            allocations.push(allocation);
-        } else {
-            const rotatedPosition = this.getRotatedPosition(position);
-            allocations = [
-                ...allocations.slice(0, rotatedPosition),
-                allocation,
-                ...allocations.slice(rotatedPosition, allocations.length),
-            ];
-        }
-        return allocations;
+    private insertAllocation(position: number, allocation: number) {
+        this.allocations.splice(
+            this.getRotatedPosition(position),
+            0, // delete 0 elements
+            allocation
+        );
     }
 
     private getRotatedPosition(position: number) {

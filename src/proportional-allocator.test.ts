@@ -184,11 +184,9 @@ describe('ProportionalAllocator', () => {
                     allocation: number | undefined,
                     expected: number[]
                 ) => {
-                    let allocator = new ProportionalAllocator(input);
-                    allocator = allocator.add(position, allocation);
-                    expect(allocator.getRawAllocations()).toStrictEqual(
-                        expected
-                    );
+                    const allocator = new ProportionalAllocator(input);
+                    allocator.add(position, allocation);
+                    expect(allocator.getAllocations()).toStrictEqual(expected);
                 }
             );
         });
@@ -257,11 +255,9 @@ describe('ProportionalAllocator', () => {
                     allocation: number | undefined,
                     expected: number[]
                 ) => {
-                    let allocator = new ProportionalAllocator(input);
-                    allocator = allocator.add(position, allocation);
-                    expect(allocator.getRawAllocations()).toStrictEqual(
-                        expected
-                    );
+                    const allocator = new ProportionalAllocator(input);
+                    allocator.add(position, allocation);
+                    expect(allocator.getAllocations()).toStrictEqual(expected);
                 }
             );
         });
@@ -270,15 +266,13 @@ describe('ProportionalAllocator', () => {
     describe('push', () => {
         it('throws error when added allocation is < 0', () => {
             expect(() => {
-                let allocator = new ProportionalAllocator();
-                allocator.push(-0.000000000000001);
+                new ProportionalAllocator().push(-0.000000000000001);
             }).toThrowError(errorMsg);
         });
 
         it('throws error when added allocation is > 1', () => {
             expect(() => {
-                let allocator = new ProportionalAllocator();
-                allocator.push(1.000000000000001);
+                new ProportionalAllocator().push(1.000000000000001);
             }).toThrowError(errorMsg);
         });
 
@@ -366,11 +360,9 @@ describe('ProportionalAllocator', () => {
                     allocation: number | undefined,
                     expected: number[]
                 ) => {
-                    let allocator = new ProportionalAllocator(input);
-                    allocator = allocator.push(allocation);
-                    expect(allocator.getRawAllocations()).toStrictEqual(
-                        expected
-                    );
+                    const allocator = new ProportionalAllocator(input);
+                    allocator.push(allocation);
+                    expect(allocator.getAllocations()).toStrictEqual(expected);
                 }
             );
         });
@@ -419,25 +411,23 @@ describe('ProportionalAllocator', () => {
                     allocation: number | undefined,
                     expected: number[]
                 ) => {
-                    let allocator = new ProportionalAllocator(input);
-                    allocator = allocator.push(allocation);
-                    expect(allocator.getRawAllocations()).toStrictEqual(
-                        expected
-                    );
+                    const allocator = new ProportionalAllocator(input);
+                    allocator.push(allocation);
+                    expect(allocator.getAllocations()).toStrictEqual(expected);
                 }
             );
         });
     });
 
-    describe('getRawAllocations', () => {
+    describe('getAllocations', () => {
         it('returns empty array when allocator is empty', () => {
             const allocator = new ProportionalAllocator();
-            expect(allocator.getRawAllocations()).toStrictEqual([]);
+            expect(allocator.getAllocations()).toStrictEqual([]);
         });
 
         it('returns raw allocations when allocator is created with an specific allocations', () => {
             const allocator = new ProportionalAllocator([0.75, 0.25]);
-            expect(allocator.getRawAllocations()).toStrictEqual([0.75, 0.25]);
+            expect(allocator.getAllocations()).toStrictEqual([0.75, 0.25]);
         });
     });
 });
