@@ -127,6 +127,17 @@ export class ProportionalAllocator {
 
     update(position: number, newAllocation: number) {
         this.validate(newAllocation);
+        if (
+            this.allocations.length === 0 ||
+            position < 0 ||
+            position >= this.allocations.length
+        ) {
+            return this;
+        } else {
+            // case: this.allocations are not empty
+            // calc diff between oldAllocation and newAllocation
+            return this;
+        }
     }
 
     private insertAndRecalculate(allocation: number, position: number) {
@@ -142,13 +153,13 @@ export class ProportionalAllocator {
 
     private insertAllocation(position: number, allocation: number) {
         this.allocations.splice(
-            this.getRotatedAddPosition(position),
+            this.getRotatedPosition(position),
             0, // delete 0 elements
             allocation
         );
     }
 
-    private getRotatedAddPosition(position: number) {
+    private getRotatedPosition(position: number) {
         const length = this.allocations.length;
         if (position >= 0) {
             return position % (length + 1);

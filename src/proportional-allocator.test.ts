@@ -602,6 +602,58 @@ describe('ProportionalAllocator', () => {
                 new ProportionalAllocator().update(0, 1.000000000000001);
             }).toThrowError('allocation must be between 0 and 1');
         });
+
+        test.each([
+            [
+                'update in undefined at position 0 to 0.0 => []',
+                undefined,
+                0,
+                0,
+                [],
+            ],
+            [
+                'update in undefined at position 0 to 1.0 => []',
+                undefined,
+                0,
+                1.0,
+                [],
+            ],
+            ['update in [1] at position 0 to 0.0 => [1]', [1], 0, 0.0, [1]],
+            [
+                'update in [0.4, 0.6] at position -1 to 0.5 => [0.4, 0.6]',
+                [0.4, 0.6],
+                -1, // any negative
+                0.5,
+                [0.4, 0.6],
+            ],
+            [
+                'update in [0.4, 0.6] at position 2 to 0.5 => [0.4, 0.6]',
+                [0.4, 0.6],
+                2, // higher than last
+                0.5,
+                [0.4, 0.6],
+            ],
+            [
+                'update in [0.4, 0.6] at position 0 to 0.5 => [0.5, 0.5]',
+                [0.4, 0.6],
+                0,
+                0.5,
+                [0.5, 0.5],
+            ],
+        ])(
+            '%s',
+            (
+                _: string,
+                input: number[] | undefined,
+                position: number,
+                allocation: number,
+                expected: number[]
+            ) => {
+                const allocator = new ProportionalAllocator(input);
+                allocator.update(position, allocation);
+                expect(allocator.getAllocations()).toStrictEqual(expected);
+            }
+        );
     });
 
     describe('miscellaneous', () => {
