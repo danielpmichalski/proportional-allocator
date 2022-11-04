@@ -63,9 +63,8 @@ export class ProportionalAllocator {
         position: number,
         allocation?: number | undefined
     ): ProportionalAllocator {
-        allocation && this.validate(allocation);
-
-        if (allocation) {
+        if (allocation !== undefined) {
+            this.validate(allocation);
             this.insertAndRecalculate(allocation, position);
         } else {
             this.insertAndRecalculate(
@@ -128,14 +127,43 @@ export class ProportionalAllocator {
     update(position: number, newAllocation: number) {
         this.validate(newAllocation);
         if (
-            this.allocations.length === 0 ||
+            this.allocations.length <= 1 ||
             position < 0 ||
-            position >= this.allocations.length
+            position >= this.allocations.length ||
+            this.allocations[position] === newAllocation
         ) {
             return this;
         } else {
-            // case: this.allocations are not empty
-            // calc diff between oldAllocation and newAllocation
+            // FIXME: the below doesn't work for cases when other allocations get <0 or >1
+
+            const oldAllocation = this.allocations[position];
+            const diff =
+                (oldAllocation - newAllocation) / (this.allocations.length - 1);
+
+            // case: allocation can get below 0 due to high negative diff
+            // case: allocation can get above 1 due to high positive diff
+
+            let remainder = 0;
+            let numberOfZeroAllocations = 0;
+
+            this.allocations.forEach((_, index, array) => {
+                if (index === position) {
+                    array[index] = newAllocation;
+                } else {
+                    if (array[index] + diff < 0) {
+                        remainder -= array[index] + diff;
+                        numberOfZeroAllocations++;
+                        array[index] = 0;
+                    } else {
+                        array[index] += diff;
+                    }
+                }
+            });
+
+            console.log(
+                `remainder=${remainder}, numberOfRemainderIncreases=${numberOfZeroAllocations}`
+            );
+
             return this;
         }
     }
