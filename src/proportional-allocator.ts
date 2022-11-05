@@ -19,7 +19,9 @@
 // - can an item have 0% allocation? e.g. add item1 -> 100%, lock it, add item2 -> 0% ? yes, this is a valid use case
 // - what should happen when item is added with specified allocation, but all other are locked? should it get 0%? yes
 // - do we want to allow increase/decrease of multiple items at the same time? what's the use case for this? let's skip it for now
-//
+// - do we want to allow BigDecimal? should we make this class generic?
+
+const zeroBoundary = 1e-6;
 
 export class ProportionalAllocator {
     private allocations: number[] = [];
@@ -28,10 +30,8 @@ export class ProportionalAllocator {
         if (allocations) {
             allocations.forEach((item) => this.validate(item));
             const total = this.getTotal(allocations);
-            if (total > 1) {
-                throw new Error('sum of input allocations cannot exceed 1');
-            }
-            if (total < 1) {
+            // FIXME
+            if (total !== 1 && total !== 0.9999999999999999) {
                 throw new Error('sum of input allocations must equal 1');
             }
             this.allocations.push(...allocations);
@@ -129,42 +129,50 @@ export class ProportionalAllocator {
         if (
             this.allocations.length <= 1 ||
             position < 0 ||
-            position >= this.allocations.length ||
-            this.allocations[position] === newAllocation
+            position >= this.allocations.length
         ) {
             return this;
         } else {
-            // FIXME: the below doesn't work for cases when other allocations get <0 or >1
-
             const oldAllocation = this.allocations[position];
-            const diff =
-                (oldAllocation - newAllocation) / (this.allocations.length - 1);
+            const diff = oldAllocation - newAllocation;
 
-            // case: allocation can get below 0 due to high negative diff
-            // case: allocation can get above 1 due to high positive diff
+            if (oldAllocation === newAllocation) {
+                return this;
+            } else if (diff < 0) {
+                let remainder = diff;
+                do {
+                    let numberOfZeros = 0;
+                    const diffPerRemainingItem =
+                        remainder /
+                        (this.allocations.length - 1 - numberOfZeros);
 
-            let remainder = 0;
-            let numberOfZeroAllocations = 0;
+                    let newRemainder = 0;
+                    this.allocations.forEach((_, index, array) => {
+                        if (index !== position) {
+                            const newValue =
+                                array[index] + diffPerRemainingItem;
+                            if (newValue > zeroBoundary) {
+                                array[index] = newValue;
+                            } else {
+                                array[index] = 0;
+                                numberOfZeros++;
+                                newRemainder += -newValue;
+                            }
+                        }
+                    });
 
-            this.allocations.forEach((_, index, array) => {
-                if (index === position) {
-                    array[index] = newAllocation;
-                } else {
-                    if (array[index] + diff < 0) {
-                        remainder -= array[index] + diff;
-                        numberOfZeroAllocations++;
-                        array[index] = 0;
-                    } else {
-                        array[index] += diff;
-                    }
-                }
-            });
+                    remainder = -newRemainder;
+                } while (Math.abs(remainder) > zeroBoundary);
 
-            console.log(
-                `remainder=${remainder}, numberOfRemainderIncreases=${numberOfZeroAllocations}`
-            );
+                this.allocations[position] = newAllocation;
 
-            return this;
+                return this;
+            } else if (diff > 0) {
+                // all other need to get higher
+                return this;
+            } else {
+                return this;
+            }
         }
     }
 

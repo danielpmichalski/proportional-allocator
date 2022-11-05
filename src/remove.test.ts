@@ -79,6 +79,7 @@ describe('remove', () => {
             0.5,
             [0.45, 0.55],
         ],
+        // TODO add more test cases, esp. boundary values
     ])(
         '%s',
         (

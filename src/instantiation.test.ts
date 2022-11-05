@@ -26,7 +26,7 @@ describe('instantiation', () => {
 
     it('throws error when sum of allocations is > 1', () => {
         expect(() => new ProportionalAllocator([0.9999, 0.0002])).toThrowError(
-            'sum of input allocations cannot exceed 1'
+            'sum of input allocations must equal 1'
         );
     });
 

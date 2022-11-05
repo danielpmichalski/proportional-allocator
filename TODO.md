@@ -1,7 +1,7 @@
 # TODO
 
 -   implement library
--   find free CI/CD online pipeline
--   setup CI/CD pipeline
+-   skip test modules when building a distribution
 -   publish to npm registry
+    -   publish TS typings; how?
 -   create a gif with sliders that show the allocations mechanism
