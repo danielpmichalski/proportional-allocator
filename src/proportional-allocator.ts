@@ -134,43 +134,42 @@ export class ProportionalAllocator {
             return this;
         } else {
             const oldAllocation = this.allocations[position];
-            const diff = oldAllocation - newAllocation;
+            const difference = oldAllocation - newAllocation;
+            this.allocations[position] = newAllocation;
 
             if (oldAllocation === newAllocation) {
                 return this;
-            } else if (diff < 0) {
-                let remainder = diff;
+            } else {
+                let remainder = difference;
                 do {
-                    let numberOfZeros = 0;
+                    let numberOfExceeded = 0;
                     const diffPerRemainingItem =
                         remainder /
-                        (this.allocations.length - 1 - numberOfZeros);
+                        (this.allocations.length - 1 - numberOfExceeded);
 
                     let newRemainder = 0;
                     this.allocations.forEach((_, index, array) => {
                         if (index !== position) {
                             const newValue =
                                 array[index] + diffPerRemainingItem;
-                            if (newValue > zeroBoundary) {
+                            if (
+                                difference < 0
+                                    ? newValue > zeroBoundary
+                                    : newValue < 1
+                            ) {
                                 array[index] = newValue;
                             } else {
-                                array[index] = 0;
-                                numberOfZeros++;
-                                newRemainder += -newValue;
+                                array[index] = difference < 0 ? 0 : 1;
+                                numberOfExceeded++;
+                                newRemainder +=
+                                    difference < 0 ? -newValue : 1 - newValue;
                             }
                         }
                     });
 
-                    remainder = -newRemainder;
+                    remainder = difference < 0 ? -newRemainder : newRemainder;
                 } while (Math.abs(remainder) > zeroBoundary);
 
-                this.allocations[position] = newAllocation;
-
-                return this;
-            } else if (diff > 0) {
-                // all other need to get higher
-                return this;
-            } else {
                 return this;
             }
         }
