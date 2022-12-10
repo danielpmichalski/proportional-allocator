@@ -129,7 +129,8 @@ export class ProportionalAllocator {
         if (
             this.allocations.length <= 1 ||
             position < 0 ||
-            position >= this.allocations.length
+            position >= this.allocations.length ||
+            this.allocations[position] === newAllocation
         ) {
             return this;
         } else {
@@ -137,41 +138,36 @@ export class ProportionalAllocator {
             const difference = oldAllocation - newAllocation;
             this.allocations[position] = newAllocation;
 
-            if (oldAllocation === newAllocation) {
-                return this;
-            } else {
-                let remainder = difference;
-                do {
-                    let numberOfExceeded = 0;
-                    const diffPerRemainingItem =
-                        remainder /
-                        (this.allocations.length - 1 - numberOfExceeded);
+            let remainder = difference;
+            do {
+                let numberOfExceeded = 0;
+                const diffPerRemainingItem =
+                    remainder /
+                    (this.allocations.length - 1 - numberOfExceeded);
 
-                    let newRemainder = 0;
-                    this.allocations.forEach((_, index, array) => {
-                        if (index !== position) {
-                            const newValue =
-                                array[index] + diffPerRemainingItem;
-                            if (
-                                difference < 0
-                                    ? newValue > zeroBoundary
-                                    : newValue < 1
-                            ) {
-                                array[index] = newValue;
-                            } else {
-                                array[index] = difference < 0 ? 0 : 1;
-                                numberOfExceeded++;
-                                newRemainder +=
-                                    difference < 0 ? -newValue : 1 - newValue;
-                            }
+                let newRemainder = 0;
+                this.allocations.forEach((_, index, array) => {
+                    if (index !== position) {
+                        const newValue = array[index] + diffPerRemainingItem;
+                        if (
+                            difference < 0
+                                ? newValue > zeroBoundary
+                                : newValue < 1
+                        ) {
+                            array[index] = newValue;
+                        } else {
+                            array[index] = difference < 0 ? 0 : 1;
+                            numberOfExceeded++;
+                            newRemainder +=
+                                difference < 0 ? -newValue : 1 - newValue;
                         }
-                    });
+                    }
+                });
 
-                    remainder = difference < 0 ? -newRemainder : newRemainder;
-                } while (Math.abs(remainder) > zeroBoundary);
+                remainder = difference < 0 ? -newRemainder : newRemainder;
+            } while (Math.abs(remainder) > zeroBoundary);
 
-                return this;
-            }
+            return this;
         }
     }
 
