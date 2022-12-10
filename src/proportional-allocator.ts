@@ -4,7 +4,7 @@
 // + add item at index
 // + remove last item by popping it
 // + remove item at index
-// - update item's allocation
+// + update item's allocation
 // mode: equal
 // - push item
 // - add item at index
@@ -12,7 +12,7 @@
 // - remove item at index
 // - update item's allocation
 // other ops:
-// - clean up - remove all items that have allocation equal to 0
+// - clean up method - remove all items that have allocation equal to 0
 // - add JSDoc to the class
 
 // questions
