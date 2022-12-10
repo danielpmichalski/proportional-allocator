@@ -138,6 +138,9 @@ export class ProportionalAllocator {
             const difference = oldAllocation - newAllocation;
             this.allocations[position] = newAllocation;
 
+            // the algorithm: go through each item, increase/decrease by remainder equally;
+            // if item's allocation goes below 0 or above 1;
+            // take the overlap and spread equally among other allocations
             let remainder = difference;
             do {
                 let numberOfExceeded = 0;
