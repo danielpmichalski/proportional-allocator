@@ -6,6 +6,10 @@
 
 Proportional Allocator is an npm package written in TypeScript that makes it easy to work out changes to proportions of a collection of abstract items.
 
+## Example usage
+
+![Example usage](./proportional-sliders.gif)
+
 ## Use cases
 
 The below cases use pseudo-code.
