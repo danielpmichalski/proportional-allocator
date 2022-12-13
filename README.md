@@ -8,7 +8,7 @@ Proportional Allocator is an npm package written in TypeScript that makes it eas
 
 ## Example usage
 
-![Example usage](./proportional-sliders.gif)
+![Example usage](https://github.com/danielpmichalski/proportional-allocator/raw/master/proportional-sliders.gif)
 
 ## Use cases
 
