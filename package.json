@@ -1,6 +1,6 @@
 {
   "name": "proportional-allocator",
-  "version": "0.9.1",
+  "version": "1.0.0",
   "description": "Proportional Allocator is an npm package written in TypeScript that makes it easy to work out changes to proportions of a collection of abstract items.",
   "main": "dist/proportional-allocator.js",
   "types": "dist/proportional-allocator.d.ts",
